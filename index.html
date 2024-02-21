@@ -4,7 +4,15 @@
   </head>
   <body>
     <script type="application/javascript">
-        
+       
+       //elementos de enviar mensajes
+       const text = document.createElement('textarea');
+        document.body.append(text);
+        const button = document.createElement('button');
+        button.append('ENVIAR');
+        document.body.append(button);
+
+
         //creacion elementos 
         const ul = document.createElement('ul');
         document.body.append(ul);
@@ -21,10 +29,23 @@
                 li.append(`${element.username}: ${element.message}`);
                 ul.append(li)
             });
-
-            
         }
 
+        //Funcion enviar mensajes
+        const setMessages = async()=>{
+            const body = {
+                username: 'elMatius',
+                message: text.value
+            }
+            const response = await fetch('https://chat.tiburoncin.lat/messages',
+            {
+                method: 'POST',
+                body: JSON.stringify(body)
+            })
+        }
+       
+
+        button.addEventListener('click',setMessages);
         
         getMessages();
 
