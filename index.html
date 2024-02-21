@@ -45,9 +45,21 @@
             text.value = ''; // Limpiar el textarea después de enviar el mensaje
         }
        
-
+        //enviar si se toca el boton
         button.addEventListener('click',setMessages);
-        
+        //enviar si se toca el enter
+        // Función para enviar mensajes cuando se presiona "Enter"
+        const enviarConEnter = (event) => {
+            if (event.keyCode === 13) { // 13 es el código de la tecla "Enter"
+                event.preventDefault(); // Evita que se inserte un salto de línea en el textarea
+                setMessages(); // Llama a la función setMessages para enviar el mensaje
+            }
+        };
+
+    // Agregar el event listener al textarea
+        text.addEventListener('keydown', enviarConEnter);
+
+
         // Actualizar los mensajes cada 5 segundos (5000 milisegundos)
         setInterval(getMessages, 1000);
         
