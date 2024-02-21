@@ -23,7 +23,7 @@
             const messages = await response.json();
             console.log('mesages',messages);
            
-           
+            ul.innerHTML = '';
             messages.forEach((element) => {
                 const li = document.createElement('li');
                 li.append(`${element.username}: ${element.message}`);
@@ -42,13 +42,17 @@
                 method: 'POST',
                 body: JSON.stringify(body)
             })
+            text.value = ''; // Limpiar el textarea después de enviar el mensaje
         }
        
 
         button.addEventListener('click',setMessages);
         
+        // Actualizar los mensajes cada 5 segundos (5000 milisegundos)
+        setInterval(getMessages, 1000);
+        
+        // Cargar los mensajes al cargar la página
         getMessages();
-
     </script>
   </body>
 </html>
