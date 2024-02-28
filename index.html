@@ -4,30 +4,85 @@
   </head>
   <body>
     <script type="application/javascript">
-       
-       //elementos de enviar mensajes
-       const text = document.createElement('textarea');
+
+        //Vamos a colocar las constantes
+
+        //Creamos los elementos
+        const ul = document.createElement('ul');
+        document.body.append(ul); //el ul
+        
+
+        //elementos de enviar mensajes
+        const text = document.createElement('textarea'); //el text area
+        text.setAttribute('id', 'text');
+        text.setAttribute('rows', '4');
+        text.setAttribute('cols', '50');
         document.body.append(text);
+
+        const wordCount = document.createElement('p');
+        wordCount.setAttribute('id', 'wordCount');
+        document.body.append(wordCount);
+
         const button = document.createElement('button');
         button.append('ENVIAR');
         document.body.append(button);
+        const lightnight = document.createElement('button');
+        lightnight.append('ChangeMod');
+        document.body.append(lightnight);
 
+        const maxWords = 100;
 
-        //creacion elementos 
-        const ul = document.createElement('ul');
-        document.body.append(ul);
-        
+        // Función para contar palabras
+        const countWords = (text) => {
+           
+            const wordCount = text.length;
+            return wordCount;
+        };
+
+        // Actualizar el contador de palabras al escribir en el textarea
+        text.addEventListener('input', () => {
+            const count = countWords(text.value);
+            wordCount.textContent = `${count} ${count === 1 ? 'caracter' : 'caracteres'}`;
+
+            // Verificar si se ha excedido el límite de palabras
+            if (count > maxWords) {
+                // Truncar el texto ingresado
+                const truncatedText = text.value
+                    .split(/\s+/)
+                    .slice(0, maxWords)
+                    .join(' ');
+                text.value = truncatedText;
+                wordCount.textContent = `${maxWords} caracteres (límite alcanzado)`;
+                button.disabled = true;
+            }else {
+                button.disabled = false;
+            }
+        });
+
         //Funcion obtener mensajes
         const getMessages= async()=> {
             const response = await fetch('https://chat.tiburoncin.lat/messages');
             const messages = await response.json();
-            console.log('mesages',messages);
+            
            
             ul.innerHTML = '';
             messages.forEach((element) => {
                 const li = document.createElement('li');
-                li.append(`${element.username}: ${element.message}`);
-                ul.append(li)
+
+
+               
+                if (element.message.startsWith('https://') && (element.message.includes('png') || element.message.includes('jpg')) ) {
+
+                        console.log(element.message);
+                        console.log(element.message.endsWith('png'));
+                        const img = document.createElement('img');
+                        img.src = element.message;
+                        img.style.maxWidth = '150px'; // Ajustar el ancho máximo de la imagen
+                        li.appendChild(img);
+                }else{
+                    li.append(`${element.username}: ${element.message}`);
+                }
+                ul.insertBefore(li, ul.firstChild);
             });
         }
 
@@ -52,15 +107,17 @@
         const enviarConEnter = (event) => {
             if (event.keyCode === 13) { // 13 es el código de la tecla "Enter"
                 event.preventDefault(); // Evita que se inserte un salto de línea en el textarea
-                setMessages(); // Llama a la función setMessages para enviar el mensaje
+                if (countWords(text.value) <= maxWords) {
+                    setMessages(); // Llama a la función setMessages para enviar el mensaje
+                }
             }
         };
+        
 
-    // Agregar el event listener al textarea
+        // Agregar el event listener al textarea
         text.addEventListener('keydown', enviarConEnter);
 
-
-        // Actualizar los mensajes cada 5 segundos (5000 milisegundos)
+        // Actualizar los mensajes cada 1 segundos (1000 milisegundos)
         setInterval(getMessages, 1000);
         
         // Cargar los mensajes al cargar la página
