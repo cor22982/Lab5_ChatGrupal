@@ -5,6 +5,38 @@
   <body>
     <script type="application/javascript">
 
+
+
+
+
+
+        //colocamos un link 
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css';
+
+        // Agrega el elemento link al head del documento
+        document.head.appendChild(link);
+
+        // Luego de cargar FontAwesome, puedes utilizar iconos en cualquier parte de tu página
+        const icon = document.createElement('i');
+        icon.className = 'fa-solid fa-paper-plane'; // Clase del icono FontAwesome
+        
+        //colocamos el modo oscuro o claro
+        const lightnight = document.createElement('button');
+        lightnight.style.borderRadius = '150px';
+        lightnight.style.fontSize = '40px';
+        lightnight.style.backgroundColor = 'white';
+        lightnight.style.border = 'none'; 
+        document.body.appendChild(lightnight);
+        const icon2 = document.createElement('i');        
+        icon2.className = 'fa-solid fa-circle-half-stroke'
+        lightnight.appendChild(icon2);
+
+        
+
+        
+
         //Vamos a colocar las constantes
 
         const contenedor = document.createElement('div');
@@ -35,27 +67,41 @@
         const ul = document.createElement('ul');
         ulContenedor.appendChild(ul); // Agregar ul al contenedor de ul
 
+        const textareaContainer = document.createElement('div');
+        textareaContainer.style.maxHeight = '400px';
+        textareaContainer.setAttribute('class', 'textAreacontainer');
+        textareaContainer.style.display = 'flex'; // Definir como contenedor flex
+        textareaContainer.style.marginTop = '10px'
+        contenedor.appendChild(textareaContainer);
+        
 
         //elementos de enviar mensajes
         const text = document.createElement('textarea'); //el text area
         text.setAttribute('id', 'text');
         text.setAttribute('rows', '2');
         text.setAttribute('cols', '85');
-        contenedor.appendChild(text); // Agregar text al contenedor principal
+        text.style.borderRadius = '11px';
+        textareaContainer.appendChild(text); // Agregar text al contenedor principal
 
-        const wordCount = document.createElement('p');
-        wordCount.setAttribute('id', 'wordCount');
-        contenedor.appendChild(wordCount); // Agregar wordCount al contenedor principal
 
 
         const button = document.createElement('button');
-        button.append('ENVIAR');
-        contenedor.appendChild(button); // Agregar button al contenedor principal
+        button.append(icon);
+        button.style.marginLeft = '10px';
+        button.style.borderRadius = '10px';
+        button.style.fontSize = '20px';
+        button.style.color = 'white';
+        button.style.backgroundColor = 'blue';
+        textareaContainer.appendChild(button);
 
-        const lightnight = document.createElement('button');
-        lightnight.append('ChangeMod');
-        contenedor.appendChild(lightnight); // Agregar lightnight al contenedor principal
+        const wordCount = document.createElement('p');
+        wordCount.setAttribute('id', 'wordCount');
+        contenedor.appendChild(wordCount);  // Agregar wordCount al contenedor principal
 
+
+
+
+       
         const maxWords = 140;
 
         // Función para contar palabras
@@ -68,7 +114,7 @@
         // Actualizar el contador de palabras al escribir en el textarea
         text.addEventListener('input', () => {
             const count = countWords(text.value);
-            wordCount.textContent = `${count} ${count === 1 ? 'caracter' : 'caracteres'}`;
+            wordCount.textContent = ` (${count} ${count === 1 ? '/140)' : '/140)'}`;
 
             // Verificar si se ha excedido el límite de palabras
             if (count > maxWords) {
@@ -94,27 +140,33 @@
             ul.innerHTML = '';
             messages.forEach((element) => {
                 const li = document.createElement('li');
+                li.style.display = 'table';
+                li.style.verticalAlign = 'right';
                 //les damos estilo a los li
                 
-                if (element.message.startsWith('https://') && (element.message.includes('png') || element.message.includes('jpg')) ) {
-
-                        console.log(element.message);
-                        console.log(element.message.endsWith('png'));
+                if (element.message.startsWith('https://') && (element.message.includes('png') || element.message.includes('jpg')|| element.message.includes('gif') || element.message.includes('jpeg')) ) {
+                        li.append(`${element.username}  : `);
+                        li.appendChild(document.createElement('br'));
                         const img = document.createElement('img');
                         img.src = element.message;
                         img.style.maxWidth = '170px'; // Ajustar el ancho máximo de la imagen
+
+                        img.onerror = function() {
+                            img.src = 'https://ruta/a/imagen_de_error.jpg'; // URL de la imagen de error
+                            img.alt = 'Imagen no disponible'; // Texto alternativo para la imagen de error
+                        };
                         li.appendChild(img);
                 }else{
-                    li.append(`${element.username}: ${element.message}`);
+                    li.append(`${element.username}  :  ${element.message}\n`);
                 }
                 li.style.listStyleType = 'none';
-                li.style.display = 'table';
+                
                 li.style.backgroundColor = '#e0f1fd';
                 li.style.marginBottom = '8px';
                 li.style.height = 'fit-content';
                 li.style.borderRadius = '10%'
                 li.style.padding = '10px';
-            
+                
                 ul.insertBefore(li, ul.firstChild);
             });
             if (isScrolledToBottom) {
