@@ -4,12 +4,7 @@
   </head>
   <body>
     <script type="application/javascript">
-
-
-
-
-
-
+        
         //colocamos un link 
         const link = document.createElement('link');
         link.rel = 'stylesheet';
@@ -83,6 +78,7 @@
         text.style.borderRadius = '11px';
         text.style.fontSize = '18px';
         text.style.maxHeight = '100px';
+        text.setAttribute('placeholder', 'Escriba un mensaje');
         textareaContainer.appendChild(text); // Agregar text al contenedor principal
 
 
@@ -181,11 +177,19 @@
                             li.append(`${element.username}  :  ${element.message}\n`);
                             
                         }
+                        let darkModeEnabled = localStorage.getItem('darkModeEnabled') === 'true'; // Obtener estado del modo oscuro
+                        if (darkModeEnabled){
+                            li.style.backgroundColor = '#202c33';
+                            li.style.color = 'white';
+                        }
+                        else{
+                            li.style.backgroundColor = '#e0f1fd';
+                            li.style.color = 'black';
+                        }
                         li.style.listStyleType = 'none';
-                        li.style.backgroundColor = '#e0f1fd';
                         li.style.marginBottom = '8px';
                         li.style.height = 'fit-content';
-                        li.style.borderRadius = '10%';
+                        li.style.borderRadius = '2.5%';
                         li.style.padding = '10px';
                         ul.appendChild(li);
                         
@@ -232,17 +236,79 @@
             }
         };
         
+        //vamos a colocar el event del boton de claro oscuro
+
+        window.addEventListener('load', () => {
+            let darkModeEnabled = localStorage.getItem('darkModeEnabled') === 'true'; // Obtener estado del modo oscuro
+
+            const applyDarkModeStyles = () => {
+                if (darkModeEnabled) {
+                    //estilo darkmode
+                    document.body.style.backgroundColor = 'black';
+                    icon.style.color = '#8696a0';
+                    lightnight.style.backgroundColor = 'black';
+                    icon2.style.color = '#8696a0';
+                    text.style.backgroundColor = '#2a3942'; // Color de fondo
+                    text.style.borderColor = '#8696a0';
+                    text.style.color = 'white';
+                    wordCount.style.color = 'white'; 
+                    contenedor.style.boxShadow = '0 0 10px rgba(241,241,241,255)';
+                    contenedor.style.borderColor = 'white';
+                    contenedor.style.backgroundColor = 'black';
+                    const lis = document.querySelectorAll('li');
+                    lis.forEach(li => {
+                        li.style.backgroundColor = '#202c33'; // Cambia aquí el color de fondo en modo oscuro
+                        li.style.color = 'white'; // Cambia aquí el color del texto en modo oscuro
+                    });
+                    button.style.backgroundColor = '#202c33';
+                    
+                } else {
+                    // estilos light mode
+                    document.body.style.backgroundColor = 'white';
+                    icon.style.color = 'white'; // Restaurar color del icono
+                    icon2.style.color = 'black';
+                    lightnight.style.backgroundColor = 'white';
+                    text.style.backgroundColor = 'white'; // Color de fondo
+                    text.style.borderColor = 'black'; 
+                    text.style.color = 'black'; 
+                    wordCount.style.color = 'black'; 
+                    contenedor.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.5)';
+                    contenedor.style.borderColor = 'black';
+                    contenedor.style.backgroundColor = 'white';
+                    const lis = document.querySelectorAll('li');
+                    lis.forEach(li => {
+                        li.style.backgroundColor = '#e0f1fd'; // Cambia aquí el color de fondo en modo oscuro
+                        li.style.color = 'black'; // Cambia aquí el color del texto en modo oscuro
+                    });
+                    button.style.backgroundColor = 'blue';
+                }
+            };
+
+            const toggleDarkMode = () => {
+                darkModeEnabled = !darkModeEnabled; 
+                applyDarkModeStyles(); 
+
+                //guardar modo oscuro
+                localStorage.setItem('darkModeEnabled', darkModeEnabled);
+            };
+
+            //aplicar modo oscuro
+            applyDarkModeStyles();
+
+            // agregar el evento
+            lightnight.addEventListener('click', toggleDarkMode);
+        });
 
         // Agregar el event listener al textarea
         text.addEventListener('keydown', enviarConEnter);
 
-        // Actualizar los mensajes cada 1 segundos (1000 milisegundos)
+        // actualizar cada segundo
         setInterval(getMessages, 1000);
         
-        // Cargar los mensajes al cargar la página
+        // cargar mensajes
         getMessages();
 
-        // Función para manejar errores al cargar la vista previa de la página
+        // manejar errores de preview
         const handlePreviewError = () => {
             
         };
