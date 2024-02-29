@@ -81,6 +81,8 @@
         text.setAttribute('rows', '2');
         text.setAttribute('cols', '85');
         text.style.borderRadius = '11px';
+        text.style.fontSize = '18px';
+        text.style.maxHeight = '100px';
         textareaContainer.appendChild(text); // Agregar text al contenedor principal
 
 
@@ -131,48 +133,77 @@
             }
         });
 
-        //Funcion obtener mensajes
-        const getMessages= async()=> {
-            const response = await fetch('https://chat.tiburoncin.lat/messages');
-            const messages = await response.json();
-            
-            const isScrolledToBottom = ulContenedor.scrollHeight - ulContenedor.clientHeight <= ulContenedor.scrollTop + 1;
-            ul.innerHTML = '';
-            messages.forEach((element) => {
-                const li = document.createElement('li');
-                li.style.display = 'table';
-                li.style.verticalAlign = 'right';
-                //les damos estilo a los li
-                
-                if (element.message.startsWith('https://') && (element.message.includes('png') || element.message.includes('jpg')|| element.message.includes('gif') || element.message.includes('jpeg')) ) {
-                        li.append(`${element.username}  : `);
-                        li.appendChild(document.createElement('br'));
-                        const img = document.createElement('img');
-                        img.src = element.message;
-                        img.style.maxWidth = '170px'; // Ajustar el ancho máximo de la imagen
+        
+        let mensajesMostrados = [];
 
-                        img.onerror = function() {
-                            img.src = 'https://ruta/a/imagen_de_error.jpg'; // URL de la imagen de error
-                            img.alt = 'Imagen no disponible'; // Texto alternativo para la imagen de error
-                        };
-                        li.appendChild(img);
-                }else{
-                    li.append(`${element.username}  :  ${element.message}\n`);
+        //Funcion obtener mensajes
+        const getMessages = async () => {
+            try {
+                const response = await fetch('https://chat.tiburoncin.lat/messages'); // Solicitar todos los mensajes
+                if (!response.ok) {
+                    throw new Error('No se pudo obtener los mensajes');
                 }
-                li.style.listStyleType = 'none';
+                let messages = await response.json();
+                messages = messages.reverse();
                 
-                li.style.backgroundColor = '#e0f1fd';
-                li.style.marginBottom = '8px';
-                li.style.height = 'fit-content';
-                li.style.borderRadius = '10%'
-                li.style.padding = '10px';
+                const isScrolledToBottom = ulContenedor.scrollHeight - ulContenedor.clientHeight <= ulContenedor.scrollTop + 1;
+                //  messages = messages.reverse();
+                messages.forEach((element) => {
+                    // Verificar si el mensaje ya se ha mostrado
+                    if (!mensajesMostrados.includes(element.id)) {
+                        const li = document.createElement('li');
+                        li.style.display = 'table';
+                        li.style.verticalAlign = 'right';
+                        //les damos estilo a los li
+                        if (element.message.startsWith('https://') && (element.message.includes('png') || element.message.includes('jpg')|| element.message.includes('gif') || element.message.includes('jpeg')) ) {
+                            li.append(`${element.username}  : `);
+                            li.appendChild(document.createElement('br'));
+                            const img = document.createElement('img');
+                            img.src = element.message;
+                            img.style.maxWidth = '170px'; // Ajustar el ancho máximo de la imagen
+                            img.onerror = function() {
+                                img.src = 'https://ruta/a/imagen_de_error.jpg'; // URL de la imagen de error
+                                img.alt = 'Imagen no disponible'; // Texto alternativo para la imagen de error
+                            };
+                            li.appendChild(img);
+                        } else if (element.message.startsWith('https://')) {
+                            li.append(`${element.username}  : `);
+                            li.appendChild(document.createElement('br'));
+                            const linkElement = document.createElement("object");
+                            linkElement.setAttribute("width", "350");
+                            linkElement.setAttribute("height", "350");
+                            linkElement.setAttribute("data", `${element.message}`);
+                            linkElement.setAttribute("type", "text/html");
+                            linkElement.onerror = handlePreviewError;
+                            li.appendChild(linkElement);
+                            ul.insertBefore(li, ul.firstChild);
+                        } else {
+                            li.append(`${element.username}  :  ${element.message}\n`);
+                            
+                        }
+                        li.style.listStyleType = 'none';
+                        li.style.backgroundColor = '#e0f1fd';
+                        li.style.marginBottom = '8px';
+                        li.style.height = 'fit-content';
+                        li.style.borderRadius = '10%';
+                        li.style.padding = '10px';
+                        ul.appendChild(li);
+                        
+                        
+                        // Agregar el ID del mensaje mostrado al array
+                        mensajesMostrados.push(element.id);
+                    }
+                });
                 
-                ul.insertBefore(li, ul.firstChild);
-            });
-            if (isScrolledToBottom) {
-                ulContenedor.scrollTop = ulContenedor.scrollHeight;
+                // Desplazar hacia abajo si ya estaba en la parte inferior
+                if (isScrolledToBottom) {
+                    ulContenedor.scrollTop = ulContenedor.scrollHeight;
+                }
+            } catch (error) {
+                console.error('Error al obtener los mensajes:', error);
             }
-        }
+            console.log(mensajesMostrados);
+        };
 
         //Funcion enviar mensajes
         const setMessages = async()=>{
@@ -210,6 +241,11 @@
         
         // Cargar los mensajes al cargar la página
         getMessages();
+
+        // Función para manejar errores al cargar la vista previa de la página
+        const handlePreviewError = () => {
+            
+        };
     </script>
   </body>
 </html>
