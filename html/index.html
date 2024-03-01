@@ -4,314 +4,357 @@
   </head>
   <body>
     <script type="application/javascript">
-        
+
         //colocamos un link 
         const link = document.createElement('link');
         link.rel = 'stylesheet';
         link.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css';
-
         // Agrega el elemento link al head del documento
         document.head.appendChild(link);
 
-        // Luego de cargar FontAwesome, puedes utilizar iconos en cualquier parte de tu página
-        const icon = document.createElement('i');
-        icon.className = 'fa-solid fa-paper-plane'; // Clase del icono FontAwesome
-        
-        //colocamos el modo oscuro o claro
-        const lightnight = document.createElement('button');
-        lightnight.style.borderRadius = '150px';
-        lightnight.style.fontSize = '40px';
-        lightnight.style.backgroundColor = 'white';
-        lightnight.style.border = 'none'; 
-        document.body.appendChild(lightnight);
-        const icon2 = document.createElement('i');        
-        icon2.className = 'fa-solid fa-circle-half-stroke'
-        lightnight.appendChild(icon2);
+        // Crear un contenedor para los elementos
+        const container = document.createElement('div');
+        container.style.display = 'flex';
+        container.style.alignItems = 'center';
+        container.style.justifyContent = 'center';
+        container.style.height = '100vh'; // Establecer la altura del contenedor para ocupar toda la pantalla
+        document.body.appendChild(container);
 
-        
+        // Crear el elemento de texto
+        const textuser = document.createElement('textarea');
+        textuser.setAttribute('id', 'text');
+        textuser.setAttribute('rows', '2');
+        textuser.setAttribute('cols', '40');
+        textuser.style.borderRadius = '11px';
+        textuser.style.fontSize = '20px';
+        textuser.setAttribute('placeholder', 'Escriba su usuario');
+        container.appendChild(textuser);
 
-        
+        // Crear el botón de actualización
+        const update = document.createElement('button');
+        update.style.borderRadius = '150px';
+        update.style.fontSize = '30px';
+        update.style.backgroundColor = 'blue';
+        update.style.color = 'white';
+        container.appendChild(update);
 
-        //Vamos a colocar las constantes
+        // Crear el icono y añadirlo al botón
+        const icon3 = document.createElement('i');
+        icon3.className = 'fa-solid fa-arrow-up-long';
+        update.appendChild(icon3);
 
-        const contenedor = document.createElement('div');
+        let usuario = localStorage.getItem('usuario');
 
-        contenedor.setAttribute('class', 'contenedor');
-        contenedor.style.width = '750px'; // Ajusta el ancho según tus necesidades
-        contenedor.style.height = '400px'; // Ajusta la altura según tus necesidades
-        contenedor.style.backgroundColor = '#ffffff'; // Solo para visualización
-        contenedor.style.position = 'fixed';
-        contenedor.style.top = '50%';
-        contenedor.style.left = '50%';
-        contenedor.style.transform = 'translate(-50%, -50%)';
-        contenedor.style.borderColor = 'black'
-        contenedor.style.borderRadius = '1.5%'
-        contenedor.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.5)';
-        
-      // Agrega el contenedor al body del documento
-        document.body.appendChild(contenedor);
-
-        //Creamos los elementos
-        const ulContenedor = document.createElement('div'); // Contenedor para ul
-        ulContenedor.style.overflowY = 'auto'; // Agregar scroll vertical si es necesario
-        ulContenedor.style.maxHeight = '400px'; // Establecer una altura máxima para el contenedor
-        contenedor.appendChild(ulContenedor); // Agregar contenedor de ul al contenedor principal
-        
-
-
-        const ul = document.createElement('ul');
-        ulContenedor.appendChild(ul); // Agregar ul al contenedor de ul
-
-        const textareaContainer = document.createElement('div');
-        textareaContainer.style.maxHeight = '400px';
-        textareaContainer.setAttribute('class', 'textAreacontainer');
-        textareaContainer.style.display = 'flex'; // Definir como contenedor flex
-        textareaContainer.style.marginTop = '10px'
-        contenedor.appendChild(textareaContainer);
-        
-
-        //elementos de enviar mensajes
-        const text = document.createElement('textarea'); //el text area
-        text.setAttribute('id', 'text');
-        text.setAttribute('rows', '2');
-        text.setAttribute('cols', '85');
-        text.style.borderRadius = '11px';
-        text.style.fontSize = '18px';
-        text.style.maxHeight = '100px';
-        text.setAttribute('placeholder', 'Escriba un mensaje');
-        textareaContainer.appendChild(text); // Agregar text al contenedor principal
-
-
-
-        const button = document.createElement('button');
-        button.append(icon);
-        button.style.marginLeft = '10px';
-        button.style.borderRadius = '10px';
-        button.style.fontSize = '20px';
-        button.style.color = 'white';
-        button.style.backgroundColor = 'blue';
-        textareaContainer.appendChild(button);
-
-        const wordCount = document.createElement('p');
-        wordCount.setAttribute('id', 'wordCount');
-        contenedor.appendChild(wordCount);  // Agregar wordCount al contenedor principal
-
-
-
-
-       
-        const maxWords = 140;
-
-        // Función para contar palabras
-        const countWords = (text) => {
-           
-            const wordCount = text.length;
-            return wordCount;
-        };
-
-        // Actualizar el contador de palabras al escribir en el textarea
-        text.addEventListener('input', () => {
-            const count = countWords(text.value);
-            wordCount.textContent = ` (${count} ${count === 1 ? '/140)' : '/140)'}`;
-
-            // Verificar si se ha excedido el límite de palabras
-            if (count > maxWords) {
-                // Truncar el texto ingresado
-                const truncatedText = text.value
-                    .split(/\s+/)
-                    .slice(0, maxWords)
-                    .join(' ');
-                text.value = truncatedText;
-                wordCount.textContent = `${maxWords} caracteres (límite alcanzado)`;
-                button.disabled = true;
-            }else {
-                button.disabled = false;
-            }
-        });
-
-        
-        let mensajesMostrados = [];
-
-        //Funcion obtener mensajes
-        const getMessages = async () => {
-            try {
-                const response = await fetch('https://chat.tiburoncin.lat/messages'); // Solicitar todos los mensajes
-                if (!response.ok) {
-                    throw new Error('No se pudo obtener los mensajes');
-                }
-                let messages = await response.json();
-                messages = messages.reverse();
-                
-                const isScrolledToBottom = ulContenedor.scrollHeight - ulContenedor.clientHeight <= ulContenedor.scrollTop + 1;
-                //  messages = messages.reverse();
-                messages.forEach((element) => {
-                    // Verificar si el mensaje ya se ha mostrado
-                    if (!mensajesMostrados.includes(element.id)) {
-                        const li = document.createElement('li');
-                        li.style.display = 'table';
-                        li.style.verticalAlign = 'right';
-                        //les damos estilo a los li
-                        if (element.message.startsWith('https://') && (element.message.includes('png') || element.message.includes('jpg')|| element.message.includes('gif') || element.message.includes('jpeg')) ) {
-                            li.append(`${element.username}  : `);
-                            li.appendChild(document.createElement('br'));
-                            const img = document.createElement('img');
-                            img.src = element.message;
-                            img.style.maxWidth = '170px'; // Ajustar el ancho máximo de la imagen
-                            img.onerror = function() {
-                                img.src = 'https://ruta/a/imagen_de_error.jpg'; // URL de la imagen de error
-                                img.alt = 'Imagen no disponible'; // Texto alternativo para la imagen de error
-                            };
-                            li.appendChild(img);
-                        } else if (element.message.startsWith('https://')) {
-                            li.append(`${element.username}  : `);
-                            li.appendChild(document.createElement('br'));
-                            const linkElement = document.createElement("object");
-                            linkElement.setAttribute("width", "350");
-                            linkElement.setAttribute("height", "350");
-                            linkElement.setAttribute("data", `${element.message}`);
-                            linkElement.setAttribute("type", "text/html");
-                            linkElement.onerror = handlePreviewError;
-                            li.appendChild(linkElement);
-                            ul.insertBefore(li, ul.firstChild);
-                        } else {
-                            li.append(`${element.username}  :  ${element.message}\n`);
-                            
-                        }
-                        let darkModeEnabled = localStorage.getItem('darkModeEnabled') === 'true'; // Obtener estado del modo oscuro
-                        if (darkModeEnabled){
-                            li.style.backgroundColor = '#202c33';
-                            li.style.color = 'white';
-                        }
-                        else{
-                            li.style.backgroundColor = '#e0f1fd';
-                            li.style.color = 'black';
-                        }
-                        li.style.listStyleType = 'none';
-                        li.style.marginBottom = '8px';
-                        li.style.height = 'fit-content';
-                        li.style.borderRadius = '2.5%';
-                        li.style.padding = '10px';
-                        ul.appendChild(li);
-                        
-                        
-                        // Agregar el ID del mensaje mostrado al array
-                        mensajesMostrados.push(element.id);
-                    }
-                });
-                
-                // Desplazar hacia abajo si ya estaba en la parte inferior
-                if (isScrolledToBottom) {
-                    ulContenedor.scrollTop = ulContenedor.scrollHeight;
-                }
-            } catch (error) {
-                console.error('Error al obtener los mensajes:', error);
-            }
-            console.log(mensajesMostrados);
-        };
-
-        //Funcion enviar mensajes
-        const setMessages = async()=>{
-            const body = {
-                username: 'elMatius',
-                message: text.value
-            }
-            const response = await fetch('https://chat.tiburoncin.lat/messages',
-            {
-                method: 'POST',
-                body: JSON.stringify(body)
-            })
-            text.value = ''; // Limpiar el textarea después de enviar el mensaje
+        // Si hay un nombre de usuario almacenado, mostrar los elementos adicionales
+        if (usuario != null) {
+            mostrarElementosAdicionales();  
         }
-       
-        //enviar si se toca el boton
-        button.addEventListener('click',setMessages);
-        //enviar si se toca el enter
-        // Función para enviar mensajes cuando se presiona "Enter"
-        const enviarConEnter = (event) => {
-            if (event.keyCode === 13) { // 13 es el código de la tecla "Enter"
-                event.preventDefault(); // Evita que se inserte un salto de línea en el textarea
-                if (countWords(text.value) <= maxWords) {
-                    setMessages(); // Llama a la función setMessages para enviar el mensaje
-                }
-            }
-        };
-        
-        //vamos a colocar el event del boton de claro oscuro
 
-        window.addEventListener('load', () => {
-            let darkModeEnabled = localStorage.getItem('darkModeEnabled') === 'true'; // Obtener estado del modo oscuro
 
-            const applyDarkModeStyles = () => {
-                if (darkModeEnabled) {
-                    //estilo darkmode
-                    document.body.style.backgroundColor = 'black';
-                    icon.style.color = '#8696a0';
-                    lightnight.style.backgroundColor = 'black';
-                    icon2.style.color = '#8696a0';
-                    text.style.backgroundColor = '#2a3942'; // Color de fondo
-                    text.style.borderColor = '#8696a0';
-                    text.style.color = 'white';
-                    wordCount.style.color = 'white'; 
-                    contenedor.style.boxShadow = '0 0 10px rgba(241,241,241,255)';
-                    contenedor.style.borderColor = 'white';
-                    contenedor.style.backgroundColor = 'black';
-                    const lis = document.querySelectorAll('li');
-                    lis.forEach(li => {
-                        li.style.backgroundColor = '#202c33'; // Cambia aquí el color de fondo en modo oscuro
-                        li.style.color = 'white'; // Cambia aquí el color del texto en modo oscuro
-                    });
-                    button.style.backgroundColor = '#202c33';
+        function mostrarElementosAdicionales(){
+
+                        // Luego de cargar FontAwesome, puedes utilizar iconos en cualquier parte de tu página
+                    const icon = document.createElement('i');
+                    icon.className = 'fa-solid fa-paper-plane'; // Clase del icono FontAwesome
                     
-                } else {
-                    // estilos light mode
-                    document.body.style.backgroundColor = 'white';
-                    icon.style.color = 'white'; // Restaurar color del icono
-                    icon2.style.color = 'black';
+                    //colocamos el modo oscuro o claro
+                    const lightnight = document.createElement('button');
+                    lightnight.style.borderRadius = '150px';
+                    lightnight.style.fontSize = '40px';
                     lightnight.style.backgroundColor = 'white';
-                    text.style.backgroundColor = 'white'; // Color de fondo
-                    text.style.borderColor = 'black'; 
-                    text.style.color = 'black'; 
-                    wordCount.style.color = 'black'; 
+                    lightnight.style.border = 'none'; 
+                    const icon2 = document.createElement('i');        
+                    icon2.className = 'fa-solid fa-circle-half-stroke'
+                    lightnight.appendChild(icon2);
+                    //Vamos a colocar las constantes
+
+                    const contenedor = document.createElement('div');
+
+                    contenedor.setAttribute('class', 'contenedor');
+                    contenedor.style.width = '750px'; // Ajusta el ancho según tus necesidades
+                    contenedor.style.height = '400px'; // Ajusta la altura según tus necesidades
+                    contenedor.style.backgroundColor = '#ffffff'; // Solo para visualización
+                    contenedor.style.position = 'fixed';
+                    contenedor.style.top = '50%';
+                    contenedor.style.left = '50%';
+                    contenedor.style.transform = 'translate(-50%, -50%)';
+                    contenedor.style.borderColor = 'black'
+                    contenedor.style.borderRadius = '1.5%'
                     contenedor.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.5)';
-                    contenedor.style.borderColor = 'black';
-                    contenedor.style.backgroundColor = 'white';
-                    const lis = document.querySelectorAll('li');
-                    lis.forEach(li => {
-                        li.style.backgroundColor = '#e0f1fd'; // Cambia aquí el color de fondo en modo oscuro
-                        li.style.color = 'black'; // Cambia aquí el color del texto en modo oscuro
-                    });
+                    contenedor.appendChild(lightnight);
+                // Agrega el contenedor al body del documento
+                    document.body.appendChild(contenedor);
+
+                    //Creamos los elementos
+                    const ulContenedor = document.createElement('div'); // Contenedor para ul
+                    ulContenedor.style.overflowY = 'auto'; // Agregar scroll vertical si es necesario
+                    ulContenedor.style.maxHeight = '350px'; // Establecer una altura máxima para el contenedor
+                    contenedor.appendChild(ulContenedor); // Agregar contenedor de ul al contenedor principal
+                    
+
+
+                    const ul = document.createElement('ul');
+                    ulContenedor.appendChild(ul); // Agregar ul al contenedor de ul
+
+                    const textareaContainer = document.createElement('div');
+                    textareaContainer.style.maxHeight = '400px';
+                    textareaContainer.setAttribute('class', 'textAreacontainer');
+                    textareaContainer.style.display = 'flex'; // Definir como contenedor flex
+                    textareaContainer.style.marginTop = '10px'
+                    contenedor.appendChild(textareaContainer);
+                    
+
+                    //elementos de enviar mensajes
+                    const text = document.createElement('textarea'); //el text area
+                    text.setAttribute('id', 'text');
+                    text.setAttribute('rows', '2');
+                    text.setAttribute('cols', '85');
+                    text.style.borderRadius = '11px';
+                    text.style.fontSize = '18px';
+                    text.style.maxHeight = '100px';
+                    text.setAttribute('placeholder', 'Escriba un mensaje');
+                    textareaContainer.appendChild(text); // Agregar text al contenedor principal
+
+
+
+                    const button = document.createElement('button');
+                    button.append(icon);
+                    button.style.marginLeft = '10px';
+                    button.style.borderRadius = '10px';
+                    button.style.fontSize = '20px';
+                    button.style.color = 'white';
                     button.style.backgroundColor = 'blue';
-                }
-            };
+                    textareaContainer.appendChild(button);
 
-            const toggleDarkMode = () => {
-                darkModeEnabled = !darkModeEnabled; 
-                applyDarkModeStyles(); 
+                    const wordCount = document.createElement('p');
+                    wordCount.setAttribute('id', 'wordCount');
+                    contenedor.appendChild(wordCount);  // Agregar wordCount al contenedor principal
 
-                //guardar modo oscuro
-                localStorage.setItem('darkModeEnabled', darkModeEnabled);
-            };
 
-            //aplicar modo oscuro
-            applyDarkModeStyles();
 
-            // agregar el evento
-            lightnight.addEventListener('click', toggleDarkMode);
+
+                
+                    const maxWords = 140;
+
+                    // Función para contar palabras
+                    const countWords = (text) => {
+                    
+                        const wordCount = text.length;
+                        return wordCount;
+                    };
+
+                    // Actualizar el contador de palabras al escribir en el textarea
+                    text.addEventListener('input', () => {
+                        const count = countWords(text.value);
+                        wordCount.textContent = ` (${count} ${count === 1 ? '/140)' : '/140)'}`;
+
+                        // Verificar si se ha excedido el límite de palabras
+                        if (count > maxWords) {
+                            // Truncar el texto ingresado
+                            const truncatedText = text.value
+                                .split(/\s+/)
+                                .slice(0, maxWords)
+                                .join(' ');
+                            text.value = truncatedText;
+                            wordCount.textContent = `${maxWords} caracteres (límite alcanzado)`;
+                            button.disabled = true;
+                        }else {
+                            button.disabled = false;
+                        }
+                    });
+
+                    
+                    let mensajesMostrados = [];
+
+                    //Funcion obtener mensajes
+                    const getMessages = async () => {
+                        try {
+                            const response = await fetch('https://chat.tiburoncin.lat/messages'); // Solicitar todos los mensajes
+                            if (!response.ok) {
+                                throw new Error('No se pudo obtener los mensajes');
+                            }
+                            let messages = await response.json();
+                            messages = messages.reverse();
+                            
+                            const isScrolledToBottom = ulContenedor.scrollHeight - ulContenedor.clientHeight <= ulContenedor.scrollTop + 1;
+                            //  messages = messages.reverse();
+                            messages.forEach((element) => {
+                                // Verificar si el mensaje ya se ha mostrado
+                                if (!mensajesMostrados.includes(element.id)) {
+                                    const li = document.createElement('li');
+                                    li.style.display = 'table';
+                                    li.style.verticalAlign = 'right';
+                                    //les damos estilo a los li
+                                    if (element.message.startsWith('https://') && (element.message.includes('png') || element.message.includes('jpg')|| element.message.includes('gif') || element.message.includes('jpeg')) ) {
+                                        li.append(`${element.username}  : `);
+                                        li.appendChild(document.createElement('br'));
+                                        const img = document.createElement('img');
+                                        img.src = element.message;
+                                        img.style.maxWidth = '170px'; // Ajustar el ancho máximo de la imagen
+                                        img.onerror = function() {
+                                            img.src = 'https://ruta/a/imagen_de_error.jpg'; // URL de la imagen de error
+                                            img.alt = 'Imagen no disponible'; // Texto alternativo para la imagen de error
+                                        };
+                                        li.appendChild(img);
+                                    } else if (element.message.startsWith('https://')) {
+                                        li.append(`${element.username}  : `);
+                                        li.appendChild(document.createElement('br'));
+                                        const linkElement = document.createElement("object");
+                                        linkElement.setAttribute("width", "350");
+                                        linkElement.setAttribute("height", "350");
+                                        linkElement.setAttribute("data", `${element.message}`);
+                                        linkElement.setAttribute("type", "text/html");
+                                        linkElement.onerror = handlePreviewError;
+                                        li.appendChild(linkElement);
+                                        ul.insertBefore(li, ul.firstChild);
+                                    } else {
+                                        li.append(`${element.username}  :  ${element.message}\n`);
+                                        
+                                    }
+                                    let darkModeEnabled = localStorage.getItem('darkModeEnabled') === 'true'; // Obtener estado del modo oscuro
+                                    if (darkModeEnabled){
+                                        li.style.backgroundColor = '#202c33';
+                                        li.style.color = 'white';
+                                    }
+                                    else{
+                                        li.style.backgroundColor = '#e0f1fd';
+                                        li.style.color = 'black';
+                                    }
+                                    li.style.listStyleType = 'none';
+                                    li.style.marginBottom = '8px';
+                                    li.style.height = 'fit-content';
+                                    li.style.borderRadius = '2.5%';
+                                    li.style.padding = '10px';
+                                    ul.appendChild(li);
+                                    
+                                    
+                                    // Agregar el ID del mensaje mostrado al array
+                                    mensajesMostrados.push(element.id);
+                                }
+                            });
+                            
+                            // Desplazar hacia abajo si ya estaba en la parte inferior
+                            if (isScrolledToBottom) {
+                                ulContenedor.scrollTop = ulContenedor.scrollHeight;
+                            }
+                        } catch (error) {
+                            console.error('Error al obtener los mensajes:', error);
+                        }
+                        console.log(mensajesMostrados);
+                    };
+
+                    //Funcion enviar mensajes
+                    const setMessages = async()=>{
+                        const body = {
+                            username: usuario,
+                            message: text.value
+                        }
+                        const response = await fetch('https://chat.tiburoncin.lat/messages',
+                        {
+                            method: 'POST',
+                            body: JSON.stringify(body)
+                        })
+                        text.value = ''; // Limpiar el textarea después de enviar el mensaje
+                    }
+                
+                    //enviar si se toca el boton
+                    button.addEventListener('click',setMessages);
+                    //enviar si se toca el enter
+                    // Función para enviar mensajes cuando se presiona "Enter"
+                    const enviarConEnter = (event) => {
+                        if (event.keyCode === 13) { // 13 es el código de la tecla "Enter"
+                            event.preventDefault(); // Evita que se inserte un salto de línea en el textarea
+                            if (countWords(text.value) <= maxWords) {
+                                setMessages(); // Llama a la función setMessages para enviar el mensaje
+                            }
+                        }
+                    };
+                    
+                    //vamos a colocar el event del boton de claro oscuro
+
+                    window.addEventListener('load', () => {
+                        let darkModeEnabled = localStorage.getItem('darkModeEnabled') === 'true'; // Obtener estado del modo oscuro
+
+                        const applyDarkModeStyles = () => {
+                            if (darkModeEnabled) {
+                                //estilo darkmode
+                                document.body.style.backgroundColor = 'black';
+                                icon.style.color = '#8696a0';
+                                lightnight.style.backgroundColor = 'black';
+                                icon2.style.color = '#8696a0';
+                                text.style.backgroundColor = '#2a3942'; // Color de fondo
+                                text.style.borderColor = '#8696a0';
+                                text.style.color = 'white';
+                                wordCount.style.color = 'white'; 
+                                contenedor.style.boxShadow = '0 0 10px rgba(241,241,241,255)';
+                                contenedor.style.borderColor = 'white';
+                                contenedor.style.backgroundColor = 'black';
+                                const lis = document.querySelectorAll('li');
+                                lis.forEach(li => {
+                                    li.style.backgroundColor = '#202c33'; // Cambia aquí el color de fondo en modo oscuro
+                                    li.style.color = 'white'; // Cambia aquí el color del texto en modo oscuro
+                                });
+                                button.style.backgroundColor = '#202c33';
+                                
+                            } else {
+                                // estilos light mode
+                                document.body.style.backgroundColor = 'white';
+                                icon.style.color = 'white'; // Restaurar color del icono
+                                icon2.style.color = 'black';
+                                lightnight.style.backgroundColor = 'white';
+                                text.style.backgroundColor = 'white'; // Color de fondo
+                                text.style.borderColor = 'black'; 
+                                text.style.color = 'black'; 
+                                wordCount.style.color = 'black'; 
+                                contenedor.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.5)';
+                                contenedor.style.borderColor = 'black';
+                                contenedor.style.backgroundColor = 'white';
+                                const lis = document.querySelectorAll('li');
+                                lis.forEach(li => {
+                                    li.style.backgroundColor = '#e0f1fd'; // Cambia aquí el color de fondo en modo oscuro
+                                    li.style.color = 'black'; // Cambia aquí el color del texto en modo oscuro
+                                });
+                                button.style.backgroundColor = 'blue';
+                            }
+                        };
+
+                        const toggleDarkMode = () => {
+                            darkModeEnabled = !darkModeEnabled; 
+                            applyDarkModeStyles(); 
+
+                            //guardar modo oscuro
+                            localStorage.setItem('darkModeEnabled', darkModeEnabled);
+                        };
+
+                        //aplicar modo oscuro
+                        applyDarkModeStyles();
+
+                        // agregar el evento
+                        lightnight.addEventListener('click', toggleDarkMode);
+                    });
+
+                    // Agregar el event listener al textarea
+                    text.addEventListener('keydown', enviarConEnter);
+
+                    // actualizar cada segundo
+                    setInterval(getMessages, 1000);
+                    
+                    // cargar mensajes
+                    getMessages();
+
+                    // manejar errores de preview
+                    const handlePreviewError = () => {
+                        
+                    };
+            
+        }
+        update.addEventListener('click',()=>{
+            usuario = textuser.value;
+            localStorage.setItem('usuario', usuario);
+            location.reload();              
         });
 
-        // Agregar el event listener al textarea
-        text.addEventListener('keydown', enviarConEnter);
-
-        // actualizar cada segundo
-        setInterval(getMessages, 1000);
         
-        // cargar mensajes
-        getMessages();
-
-        // manejar errores de preview
-        const handlePreviewError = () => {
-            
-        };
     </script>
   </body>
 </html>
